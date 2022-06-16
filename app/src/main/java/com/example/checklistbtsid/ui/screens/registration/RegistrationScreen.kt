@@ -52,59 +52,64 @@ fun RegistrationScreen(modifier: Modifier = Modifier, viewModel: RegistrationVie
             Text(text = stringResource(R.string.registration))
         }
         Spacer(modifier = Modifier.height(16.dp))
-        TextField(value = email, onValueChange = { email = it },
-            placeholder = { Text(text = stringResource(R.string.email)) },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(
-                onNext = { currentFocus.moveFocus(FocusDirection.Down) }
+        Column(modifier = modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+            TextField(value = email, onValueChange = { email = it },
+                placeholder = { Text(text = stringResource(R.string.email)) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = { currentFocus.moveFocus(FocusDirection.Down) }
+                )
             )
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(value = username, onValueChange = { username = it },
-            placeholder = { Text(text = stringResource(R.string.username)) },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(
-                onNext = { currentFocus.moveFocus(FocusDirection.Down) }
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(value = username, onValueChange = { username = it },
+                placeholder = { Text(text = stringResource(R.string.username)) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = { currentFocus.moveFocus(FocusDirection.Down) }
+                )
             )
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(value = password,
-            onValueChange = { password = it },
-            placeholder = { Text(text = stringResource(R.string.password)) },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    currentFocus.clearFocus()
-                    currentKeyboard?.hide()
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(value = password,
+                onValueChange = { password = it },
+                placeholder = { Text(text = stringResource(R.string.password)) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        currentFocus.clearFocus()
+                        currentKeyboard?.hide()
+                    }
+                ),
+                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val passIcon =
+                        if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    IconButton(onClick = { showPassword = !showPassword }) {
+                        Icon(imageVector = passIcon,
+                            contentDescription = stringResource(R.string.show_password))
+                    }
                 }
-            ),
-            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                val passIcon =
-                    if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                IconButton(onClick = { showPassword = !showPassword }) {
-                    Icon(imageVector = passIcon,
-                        contentDescription = stringResource(R.string.show_password))
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = {
+                viewModel.registration(AuthBody(email, username, password)){
+                    when(it){
+                        is ResultStatus.SUCCESS -> {
+                            Toast.makeText(context, "Registration Success", Toast.LENGTH_SHORT).show()
+                        }
+                        is ResultStatus.FAILED -> {
+                            Toast.makeText(context, "Registration Failed", Toast.LENGTH_SHORT).show()
+                        }
+                        is ResultStatus.EXCEPTION -> {
+                            Toast.makeText(context, "Something wrong!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
+            }) {
+                Text(text = stringResource(id = R.string.registration))
             }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            viewModel.registration(AuthBody(email, username, password)){
-                when(it){
-                    is ResultStatus.SUCCESS -> {
-                        Toast.makeText(context, "Registration Success", Toast.LENGTH_SHORT).show()
-                    }
-                    is ResultStatus.FAILED -> {
-                        Toast.makeText(context, "Registration Failed", Toast.LENGTH_SHORT).show()
-                    }
-                    is ResultStatus.EXCEPTION -> {
-                        Toast.makeText(context, "Something wrong!", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }) {
-            Text(text = stringResource(id = R.string.registration))
         }
     }
 }
